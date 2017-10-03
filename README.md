@@ -8,4 +8,4 @@ Connected to the arduino is a MSGEQ7 used to divide the sound picked up by the c
 
 ---
 ## Software
-The software is written in the Arduino variant of C and the FastLED library found [here](https://www.fastled.io) is used to interface with the led-strip
+The software is written in the Arduino variant of C and the FastLED library found [here](http://www.fastled.io) is used to interface with the led-strip
