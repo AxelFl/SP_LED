@@ -80,10 +80,8 @@ void loop() {
     }
   }
   else if (digitalRead(RGBBUTTON_PIN) == HIGH) {
-    hold();
     strobe();
   }
-  hold();
 }
 
 
@@ -211,7 +209,7 @@ void strobe() {
   int interval;
   boolean ledState = LOW;
   unsigned long previousMillis = 0;
-  while (buttonNotPressed()) {
+  while (digitalRead(RGBBUTTON_PIN)==HIGH) {
     FastLED.clear();
     interval = analogRead(POT3_PIN);
     unsigned long currentMillis = millis();
@@ -282,7 +280,7 @@ void rgbFill() {
 
 //Setupfunctions
 //Initialize the msgeq7
-void initMSGEQ7() {
+void initMSGEQ7() { 
   pinMode(MSGEQ7_RESET_PIN, OUTPUT);
   pinMode(MSGEQ7_STROBE_PIN, OUTPUT);
   digitalWrite(MSGEQ7_RESET_PIN, LOW);
