@@ -4,6 +4,7 @@
 #include <FastLED.h>
 //Led data
 #define NUM_LEDS 150
+#define SIDE_LENGTH 32
 #define DATA_PIN 6
 //Strip takes data in this order
 #define COLOR_ORDER GRB
@@ -23,6 +24,9 @@ CRGB leds[NUM_LEDS];
 #define RGBBUTTON_PIN 9
 //Audio levels variable
 int levels[7];
+int filtered_levels[7];
+// Lowpass filter settings
+#define ALPHA 0.95
 //Knows the current animation
 int animation;
 int nbrOfAnimations = 6;
@@ -98,12 +102,20 @@ void audiobars() {
     FastLED.clear();
     cutoffLevel = analogRead(AUDIO_LOW_PIN);
     sensitivity = analogRead(AUDIO_HIGH_PIN);
+
+    // Implement a lowpass filter for the audio levels
+    for (byte band = 0; band < 7; band++) {
+      filtered_levels[band] = ALPHA * filtered_levels[band] + (1 - ALPHA) * levels[band];
+    }
+
     //calculate the bass levels
-    int lowLevel = map(constrain(levels[0] + levels[1], cutoffLevel, sensitivity * 2), cutoffLevel, sensitivity * 2, 0, NUM_LEDS);
+    int lowLevel = map(constrain(filtered_levels[0] + filtered_levels[1], cutoffLevel, sensitivity), cutoffLevel, sensitivity, 0, NUM_LEDS - 2 * SIDE_LENGTH);
+    lowLevel = max(4, lowLevel);
     //draw the low level bar
     fill_solid(leds + (NUM_LEDS - lowLevel) / 2, lowLevel, CHSV(map(analogRead(POT1_PIN), 0, 1023, 0, 255) + lowLevel * 1.5, 255, 255));
     //High levels
-    int highLevel = map(constrain(levels[5] + levels[6], cutoffLevel, sensitivity * 2), cutoffLevel, sensitivity * 2, 0, NUM_LEDS);
+    int highLevel = map(constrain(filtered_levels[5] + filtered_levels[6], cutoffLevel, sensitivity * 2/3), cutoffLevel, sensitivity * 2/3, 8, 2 * SIDE_LENGTH);
+    highLevel = max(8, highLevel);
     //Calculate high level colors
     CHSV highColor = CHSV(map(analogRead(POT2_PIN), 0, 1023, 0, 255) - highLevel, 255, 255);
     //fill beginning
